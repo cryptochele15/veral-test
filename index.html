@@ -3,108 +3,282 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Quick Quiz</title>
+    <title>idOS Network Quiz</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <style>
         body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif, "Apple Color Emoji", "Segoe UI Emoji";
-            background-color: #f0f2f5;
-            color: #333;
-            line-height: 1.6;
-            padding: 20px;
+            font-family: 'Inter', sans-serif;
         }
-        .quiz-container {
-            max-width: 600px;
-            margin: auto;
-            background: #fff;
-            padding: 30px;
-            border-radius: 10px;
-            box-shadow: 0 4px 8px rgba(0,0,0,0.1);
-        }
-        .question {
-            margin-bottom: 20px;
-        }
-        h1 {
-            text-align: center;
-            color: #0056b3;
-        }
-        h3 {
-            margin-bottom: 10px;
-        }
-        label {
-            display: block;
-            margin-bottom: 8px;
-            cursor: pointer;
-        }
-        button {
-            display: block;
-            width: 100%;
-            padding: 12px;
-            background-color: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            font-size: 16px;
-            cursor: pointer;
-            margin-top: 20px;
-        }
-        button:hover {
-            background-color: #0056b3;
-        }
-        .correct {
-            color: #28a745;
-            font-weight: bold;
+        .quiz-option:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
         }
     </style>
 </head>
-<body>
+<body class="bg-gray-900 text-white flex items-center justify-center min-h-screen p-4">
 
-    <div class="quiz-container">
-        <h1>My Awesome Quiz ✅</h1>
+    <div id="quiz-container" class="w-full max-w-2xl bg-gray-800 rounded-2xl shadow-2xl p-6 md:p-8">
+        <!-- Quiz Header -->
+        <div class="mb-6 text-center">
+            <h1 class="text-3xl font-bold text-cyan-400">idOS Network Quiz</h1>
+            <p class="text-gray-400 mt-2">Test your knowledge about the future of decentralized identity.</p>
+        </div>
+        <hr class="border-gray-700 mb-6">
 
-        <div class="question">
-            <h3>1. What is the capital of France?</h3>
-            <label><input type="radio" name="q1" value="london"> London</label>
-            <label id="answer1"><input type="radio" name="q1" value="paris"> Paris</label>
-            <label><input type="radio" name="q1" value="berlin"> Berlin</label>
-            <label><input type="radio" name="q1" value="madrid"> Madrid</label>
+        <!-- Question Display -->
+        <div id="question-section">
+            <p class="text-lg font-semibold mb-2 text-gray-300">Question <span id="question-number"></span> of <span id="total-questions"></span></p>
+            <h2 id="question-text" class="text-2xl font-semibold leading-tight mb-6"></h2>
+            <div id="options-container" class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                <!-- Options will be dynamically inserted here -->
+            </div>
+            <div id="rationale-container" class="mt-6 p-4 bg-gray-700/50 rounded-lg hidden">
+                <p id="rationale-text" class="text-gray-300"></p>
+            </div>
         </div>
 
-        <div class="question">
-            <h3>2. What is H₂O commonly known as?</h3>
-            <label><input type="radio" name="q2" value="salt"> Salt</label>
-            <label><input type="radio" name="q2" value="sugar"> Sugar</label>
-            <label id="answer2"><input type="radio" name="q2" value="water"> Water</label>
-            <label><input type="radio" name="q2" value="oxygen"> Oxygen</label>
+        <!-- Results Display -->
+        <div id="results-section" class="hidden text-center">
+            <h2 class="text-4xl font-bold text-cyan-400">Quiz Complete!</h2>
+            <p class="text-2xl mt-4">You scored</p>
+            <p id="score" class="text-6xl font-extrabold my-4"></p>
+            <p id="score-text" class="text-lg text-gray-400 mb-8"></p>
+            <button id="restart-btn" class="w-full md:w-auto bg-cyan-500 hover:bg-cyan-600 text-white font-bold py-3 px-8 rounded-lg transition-all duration-300">
+                Try Again
+            </button>
         </div>
 
-        <div class="question">
-            <h3>3. Which planet is known as the Red Planet?</h3>
-            <label><input type="radio" name="q3" value="earth"> Earth</label>
-            <label id="answer3"><input type="radio" name="q3" value="mars"> Mars</label>
-            <label><input type="radio" name="q3" value="jupiter"> Jupiter</label>
-            <label><input type="radio" name="q3" value="venus"> Venus</label>
+        <!-- Navigation -->
+        <div id="navigation-section" class="mt-8 flex justify-between items-center">
+            <p id="hint-text" class="text-sm text-gray-500 italic"></p>
+            <button id="next-btn" class="bg-gray-700 hover:bg-cyan-500 text-white font-bold py-2 px-6 rounded-lg transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed">
+                Next
+            </button>
         </div>
-        
-        <div class="question">
-            <h3>4. What is the largest mammal in the world?</h3>
-            <label id="answer4"><input type="radio" name="q4" value="bluewhale"> Blue Whale</label>
-            <label><input type="radio" name="q4" value="elephant"> Elephant</label>
-            <label><input type="radio" name="q4" value="giraffe"> Giraffe</label>
-            <label><input type="radio" name="q4" value="shark"> Great White Shark</label>
-        </div>
-
-        <button onclick="showAnswers()">Show Answers</button>
     </div>
 
     <script>
-        function showAnswers() {
-            // Add the 'correct' class to the labels of the correct answers
-            document.getElementById('answer1').classList.add('correct');
-            document.getElementById('answer2').classList.add('correct');
-            document.getElementById('answer3').classList.add('correct');
-            document.getElementById('answer4').classList.add('correct');
-        }
-    </script>
+        const quizData = {
+            "Io": [{
+                "Iza": 0,
+                "question": "What is the primary goal of the idOS network?",
+                "hint": "Think about who should own and manage your personal data on the internet.",
+                "XG": [{
+                    "text": "To create a new stablecoin for the crypto market.",
+                    "tu": false,
+                    "N7": "While idOS focuses on the stablecoin economy, its main purpose is not to create a new stablecoin but to provide an identity layer for it."
+                }, {
+                    "text": "To provide a centralized database for storing user KYC data.",
+                    "tu": false,
+                    "N7": "idOS is a decentralized network, which is the opposite of a centralized database, and it's designed to avoid businesses storing PII directly."
+                }, {
+                    "text": "To give users control over their digital identity in a portable and private way.",
+                    "tu": true,
+                    "N7": "This aligns perfectly with the idOS mission to fix the fragmented internet identity by putting users back in control of their own data."
+                }, {
+                    "text": "To build a social media platform on the blockchain.",
+                    "tu": false,
+                    "N7": "idOS is an identity and data management layer, not a user-facing application like a social media platform."
+                }]
+            }, {
+                "Iza": 0,
+                "question": "How does idOS ensure user data remains private and secure?",
+                "hint": "Consider how information can be protected so that even the system storing it cannot read it.",
+                "XG": [{
+                    "text": "By storing all data in plaintext on a public blockchain.",
+                    "tu": false,
+                    "N7": "Storing sensitive data in plaintext on a public blockchain would be a major security risk, which idOS is designed to prevent."
+                }, {
+                    "text": "Through end-to-end encryption, where only the user holds the key.",
+                    "tu": true,
+                    "N7": "This is the core security principle of idOS. Data is encrypted on the user's device before being stored, ensuring only the user can decrypt it."
+                }, {
+                    "text": "By requiring all network operators to undergo a manual background check.",
+                    "tu": false,
+                    "N7": "While network operators are vetted, the primary security mechanism is cryptographic encryption, not just trust in the operators."
+                }, {
+                    "text": "By limiting data access to government agencies only.",
+                    "tu": false,
+                    "N7": "The system is built to give users control over who they share data with, which can include businesses and other apps, not just government agencies."
+                }]
+            }, {
+                "Iza": 0,
+                "question": "What major benefit does idOS offer to users who need to complete KYC (Know Your Customer) for multiple applications?",
+                "hint": "Think about the inconvenience of having to upload your passport and personal details for every new financial app you use.",
+                "XG": [{
+                    "text": "It allows them to skip the KYC process entirely.",
+                    "tu": false,
+                    "N7": "idOS is designed to facilitate compliance with regulations like KYC, not to bypass them."
+                }, {
+                    "text": "It makes the KYC process more difficult to enhance security.",
+                    "tu": false,
+                    "N7": "The goal is to improve user experience and efficiency, not to make essential processes more cumbersome."
+                }, {
+                    "text": "It provides a one-time verification that can be reused across different apps.",
+                    "tu": true,
+                    "N7": "This concept of 'KYC re-usability' is a key value proposition, saving users from repeating the verification process for every new service."
+                }, {
+                    "text": "It automatically sells their verified data to advertisers.",
+                    "tu": false,
+                    "N7": "This contradicts the core principle of user control and privacy; users decide if and when to share their data."
+                }]
+            }, {
+                "Iza": 0,
+                "question": "The idOS Consortium is a group of organizations that...",
+                "hint": "Successful open-source infrastructure projects often rely on the support of multiple industry players. What is the role of this group?",
+                "XG": [{
+                    "text": "Compete with the idOS network by building their own identity solutions.",
+                    "tu": false,
+                    "N7": "The Consortium members are collaborators, not competitors. They have joined forces to build a common, open-source standard."
+                }, {
+                    "text": "Collaborate on the governance and development of the idOS network.",
+                    "tu": true,
+                    "N7": "The Consortium brings together leading projects to guide the product, growth, and compliance aspects of idOS in a collaborative effort."
+                }, {
+                    "text": "Are early investors who have no say in the project's direction.",
+                    "tu": false,
+                    "N7": "Consortium members are actively engaged in governance and have a direct impact on how idOS is built."
+                }, {
+                    "text": "Regulate and approve every transaction on the idOS network.",
+                    "tu": false,
+                    "N7": "While focused on compliance, the Consortium's role is governance and strategy, not the direct, real-time approval of network transactions."
+                }]
+            }, {
+                "Iza": 0,
+                "question": "In the idOS system, what is an 'Access Grant'?",
+                "hint": "When you use 'Sign in with Google,' you grant an application permission to access parts of your profile. This concept is similar.",
+                "XG": [{
+                    "text": "A token that users receive for sharing their data.",
+                    "tu": false,
+                    "N7": "While the idOS has a token, the 'Access Grant' itself is a permission, not a reward token."
+                }, {
+                    "text": "The process of creating a new user profile on the network.",
+                    "tu": false,
+                    "N7": "An Access Grant is related to sharing data from an existing profile, not creating the profile itself."
+                }, {
+                    "text": "A legal document that transfers ownership of data to a business.",
+                    "tu": false,
+                    "N7": "Users retain ownership of their data. The grant is a revocable permission to access, not a transfer of ownership."
+                }, {
+                    "text": "A user-authorized permission allowing a specific party to access a credential.",
+                    "tu": true,
+                    "N7": "This is the precise definition. It's how a user gives a specific app or service consent to view a piece of their encrypted information."
+                }]
+            }]
+        };
 
+        const questions = quizData.Io;
+        let currentQuestionIndex = 0;
+        let score = 0;
+        let answerSelected = false;
+
+        const questionNumberEl = document.getElementById('question-number');
+        const totalQuestionsEl = document.getElementById('total-questions');
+        const questionTextEl = document.getElementById('question-text');
+        const optionsContainerEl = document.getElementById('options-container');
+        const rationaleContainerEl = document.getElementById('rationale-container');
+        const rationaleTextEl = document.getElementById('rationale-text');
+        const hintTextEl = document.getElementById('hint-text');
+        const nextBtn = document.getElementById('next-btn');
+        const restartBtn = document.getElementById('restart-btn');
+        const questionSection = document.getElementById('question-section');
+        const resultsSection = document.getElementById('results-section');
+        const scoreEl = document.getElementById('score');
+        const scoreTextEl = document.getElementById('score-text');
+        const navigationSection = document.getElementById('navigation-section');
+
+
+        function startQuiz() {
+            currentQuestionIndex = 0;
+            score = 0;
+            questionSection.classList.remove('hidden');
+            resultsSection.classList.add('hidden');
+            navigationSection.style.display = 'flex';
+            loadQuestion();
+        }
+
+        function loadQuestion() {
+            answerSelected = false;
+            nextBtn.disabled = true;
+            rationaleContainerEl.classList.add('hidden');
+            
+            const currentQuestion = questions[currentQuestionIndex];
+            questionNumberEl.textContent = currentQuestionIndex + 1;
+            totalQuestionsEl.textContent = questions.length;
+            questionTextEl.textContent = currentQuestion.question;
+            hintTextEl.textContent = `Hint: ${currentQuestion.hint}`;
+
+            optionsContainerEl.innerHTML = '';
+            currentQuestion.XG.forEach((option, index) => {
+                const optionElement = document.createElement('button');
+                optionElement.textContent = option.text;
+                optionElement.classList.add('quiz-option', 'w-full', 'p-4', 'border-2', 'border-gray-600', 'rounded-lg', 'text-left', 'transition-all', 'duration-300', 'hover:bg-gray-700', 'hover:border-cyan-500');
+                optionElement.addEventListener('click', () => selectAnswer(option, optionElement));
+                optionsContainerEl.appendChild(optionElement);
+            });
+        }
+
+        function selectAnswer(option, element) {
+            if (answerSelected) return;
+            answerSelected = true;
+            nextBtn.disabled = false;
+
+            const isCorrect = option.tu;
+            if (isCorrect) {
+                score++;
+                element.classList.remove('border-gray-600', 'hover:bg-gray-700');
+                element.classList.add('bg-green-500/20', 'border-green-500');
+            } else {
+                element.classList.remove('border-gray-600', 'hover:bg-gray-700');
+                element.classList.add('bg-red-500/20', 'border-red-500');
+            }
+            
+            // Show rationale and highlight correct answer
+            rationaleTextEl.textContent = option.N7;
+            rationaleContainerEl.classList.remove('hidden');
+
+            Array.from(optionsContainerEl.children).forEach((child, index) => {
+                child.disabled = true; // Disable all options
+                if(questions[currentQuestionIndex].XG[index].tu) {
+                    child.classList.add('bg-green-500/20', 'border-green-500');
+                }
+            });
+        }
+
+        function showResults() {
+            questionSection.classList.add('hidden');
+            resultsSection.classList.remove('hidden');
+            navigationSection.style.display = 'none';
+
+            scoreEl.textContent = `${score} / ${questions.length}`;
+            const percentage = (score / questions.length) * 100;
+            let message = '';
+            if (percentage === 100) {
+                message = "Perfect! You're an idOS expert!";
+            } else if (percentage >= 75) {
+                message = "Great job! You know your stuff.";
+            } else if (percentage >= 50) {
+                message = "Not bad! A little more reading and you'll be an expert.";
+            } else {
+                message = "Good try! Time to review the idOS docs.";
+            }
+            scoreTextEl.textContent = message;
+        }
+
+        nextBtn.addEventListener('click', () => {
+            currentQuestionIndex++;
+            if (currentQuestionIndex < questions.length) {
+                loadQuestion();
+            } else {
+                showResults();
+            }
+        });
+
+        restartBtn.addEventListener('click', startQuiz);
+
+        // Initial load
+        startQuiz();
+    </script>
 </body>
 </html>
